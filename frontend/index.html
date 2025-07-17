@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/wails.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style.css" />
+    <title>Wails App</title>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 100KB text testing section -->
+      <div class="card">
+        <h2>Small Text Testing (100KB)</h2>
+        <div class="result" id="small-text-result">Click a button below to send 100KB of text</div>
+        <div class="input-box">
+          <button class="btn" onclick="sendSmallTextViaService()" id="small-service-btn">Send via Service</button>
+        </div>
+        <div class="input-box">
+          <button class="btn" onclick="generateSmallText()" id="generate-small-btn">Generate Text (100KB)</button>
+          <span id="small-text-status">No text generated</span>
+        </div>
+        <hr />
+        <h2>Large Text Testing (2MB)</h2>
+        <div class="result" id="large-text-result">Click a button below to send 2MB of text</div>
+        <div class="input-box">
+          <button class="btn" onclick="sendLargeTextViaService()" id="service-btn">Send via Service</button>
+        </div>
+        <div class="input-box">
+          <button class="btn" onclick="generateText()" id="generate-btn">Generate Text (2MB)</button>
+          <span id="text-status">No text generated</span>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
