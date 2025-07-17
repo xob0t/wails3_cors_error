@@ -2,7 +2,6 @@ body {
   margin: 0;
   padding: 0;
   background: #1b2636;
-  overflow: hidden;
   color: white;
   font-family: system-ui, -apple-system, sans-serif;
   height: 100vh;
@@ -38,6 +37,7 @@ body {
   margin-bottom: 1em;
   min-height: 40px;
   word-wrap: break-word;
+  line-height: 1.4;
 }
 
 .input-box {
@@ -63,7 +63,71 @@ body {
   opacity: 0.6;
 }
 
-#text-status {
-  font-size: 0.9em;
-  color: #f7df1e;
+.size-input-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.size-input-container input,
+.size-input-container select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  color: black;
+}
+
+.size-input-container input {
+  width: 100px;
+}
+
+.presets {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  padding: 6px 12px;
+  border: 1px solid #007acc;
+  background: #f0f8ff;
+  color: #007acc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.preset-btn:hover {
+  background: #007acc;
+  color: white;
+}
+
+.error-details {
+  margin-top: 15px;
+  padding: 15px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  display: none;
+  color: black;
+}
+
+.error-details h4 {
+  margin: 0 0 10px 0;
+  color: #dc2626;
+}
+
+.error-details ul {
+  margin: 0 0 15px 0;
+  padding-left: 20px;
+}
+
+.error-details li {
+  margin-bottom: 5px;
 }

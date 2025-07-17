@@ -1,121 +1,107 @@
 import { GreetService } from "./bindings/changeme";
 
-const largeTextResultElement = document.getElementById("large-text-result");
-const textStatusElement = document.getElementById("text-status");
-const smallTextResultElement = document.getElementById("small-text-result");
-const smallTextStatusElement = document.getElementById("small-text-status");
+const resultElement = document.getElementById("result");
+const errorDetailsElement = document.getElementById("error-details");
 
-let largeText = null;
-let smallText = null;
+// Estimate URL length that would be generated
+function estimateUrlLength(text) {
+  const baseUrl = "http://wails.localhost:9245/wails/runtime";
+  const encodedText = encodeURIComponent(text);
+  const mockPayload = {
+    "call-id": "mock-call-id-1234567890",
+    methodID: 2583521458,
+    args: [encodedText],
+  };
+  const encodedPayload = encodeURIComponent(JSON.stringify(mockPayload));
+  return baseUrl.length + "?object=0&method=0&args=".length + encodedPayload.length;
+}
 
-// Generate approximately 100KB of text
-window.generateSmallText = () => {
-  const generateBtn = document.getElementById("generate-small-btn");
-  generateBtn.disabled = true;
-  generateBtn.textContent = "Generating...";
-  smallTextStatusElement.textContent = "Generating text...";
-
-  setTimeout(() => {
-    const targetSize = 100 * 1024; // 100KB
-    const chunk = "This is a test string for generating small text data. ";
-    const chunkSize = chunk.length;
-    const repeatCount = Math.ceil(targetSize / chunkSize);
-
-    smallText = chunk.repeat(repeatCount);
-
-    generateBtn.disabled = false;
-    generateBtn.textContent = "Generate Text (100KB)";
-    smallTextStatusElement.textContent = `Generated ${(smallText.length / 1024).toFixed(2)} KB of text`;
-
-    document.getElementById("small-service-btn").disabled = false;
-  }, 10);
-};
-
-// Generate approximately 2MB of text
-window.generateText = () => {
-  const generateBtn = document.getElementById("generate-btn");
-  generateBtn.disabled = true;
-  generateBtn.textContent = "Generating...";
-  textStatusElement.textContent = "Generating text...";
-
-  setTimeout(() => {
-    const targetSize = 2 * 1024 * 1024; // 2MB
-    const chunk = "This is a test string for generating large text data. ";
-    const chunkSize = chunk.length;
-    const repeatCount = Math.ceil(targetSize / chunkSize);
-
-    largeText = chunk.repeat(repeatCount);
-
-    generateBtn.disabled = false;
-    generateBtn.textContent = "Generate Text (2MB)";
-    textStatusElement.textContent = `Generated ${(largeText.length / 1024 / 1024).toFixed(2)} MB of text`;
-
-    document.getElementById("service-btn").disabled = false;
-  }, 10);
-};
-
-// Send small text via Service Call
-window.sendSmallTextViaService = () => {
-  if (!smallText) {
-    smallTextResultElement.textContent = "Please generate text first!";
-    return;
-  }
-
-  const serviceBtn = document.getElementById("small-service-btn");
-  serviceBtn.disabled = true;
-  serviceBtn.textContent = "Sending...";
-  smallTextResultElement.textContent = "Sending small text via service call...";
-
-  const startTime = performance.now();
-
-  GreetService.ProcessFrontendText(smallText)
-    .then((result) => {
-      const totalTime = performance.now() - startTime;
-      smallTextResultElement.textContent = `Success! ${result.message} (Total time: ${totalTime.toFixed(2)}ms)`;
-      serviceBtn.disabled = false;
-      serviceBtn.textContent = "Send via Service";
-    })
-    .catch((err) => {
-      const totalTime = performance.now() - startTime;
-      smallTextResultElement.textContent = `Error after ${totalTime.toFixed(2)}ms: ${err.message || err}`;
-      serviceBtn.disabled = false;
-      serviceBtn.textContent = "Send via Service";
-      console.error("Service call error:", err);
-    });
-};
-
-// Send large text via Service Call
-window.sendLargeTextViaService = () => {
-  if (!largeText) {
-    largeTextResultElement.textContent = "Please generate text first!";
-    return;
-  }
-
+// Generate and send text via Service Call
+window.sendTextViaService = async () => {
+  const sizeInput = document.getElementById("size-input");
+  const unitSelect = document.getElementById("unit-select");
   const serviceBtn = document.getElementById("service-btn");
+
+  const sizeValue = parseFloat(sizeInput.value);
+  const unit = unitSelect.value;
+
+  if (!sizeValue || sizeValue <= 0) {
+    resultElement.textContent = "Please enter a valid size";
+    return;
+  }
+
+  // Calculate target size in bytes
+  let targetSize;
+  switch (unit) {
+    case "B":
+      targetSize = sizeValue;
+      break;
+    case "KB":
+      targetSize = sizeValue * 1024;
+      break;
+    case "MB":
+      targetSize = sizeValue * 1024 * 1024;
+      break;
+    default:
+      targetSize = sizeValue * 1024;
+  }
+
+  // Generate text
+  const chunk = "This is a test string for generating text data. ";
+  const repeatCount = Math.ceil(targetSize / chunk.length);
+  const generatedText = chunk.repeat(repeatCount);
+
+  // Update UI
   serviceBtn.disabled = true;
   serviceBtn.textContent = "Sending...";
-  largeTextResultElement.textContent = "Sending large text via service call...";
+  resultElement.textContent = `Sending ${(generatedText.length / 1024).toFixed(1)} KB of text...`;
+  errorDetailsElement.style.display = "none";
 
   const startTime = performance.now();
+  const estimatedUrlLength = estimateUrlLength(generatedText);
 
-  GreetService.ProcessFrontendText(largeText)
-    .then((result) => {
-      const totalTime = performance.now() - startTime;
-      largeTextResultElement.textContent = `Success! ${result.message} (Total time: ${totalTime.toFixed(2)}ms)`;
-      serviceBtn.disabled = false;
-      serviceBtn.textContent = "Send via Service";
-    })
-    .catch((err) => {
-      const totalTime = performance.now() - startTime;
-      largeTextResultElement.textContent = `Error after ${totalTime.toFixed(2)}ms: ${err.message || err}`;
-      serviceBtn.disabled = false;
-      serviceBtn.textContent = "Send via Service";
-      console.error("Service call error:", err);
-    });
+  console.log(`Sending ${generatedText.length} characters`);
+  console.log(`Estimated URL length: ${estimatedUrlLength.toLocaleString()} characters`);
+
+  try {
+    const result = await GreetService.ProcessFrontendText(generatedText);
+
+    // Success
+    const totalTime = performance.now() - startTime;
+    resultElement.textContent = `✅ Success! Processed ${generatedText.length} characters in ${totalTime.toFixed(2)}ms`;
+    resultElement.style.color = "#4ade80";
+
+    console.log(`✅ Success in ${totalTime.toFixed(2)}ms`);
+  } catch (err) {
+    // Error
+    const totalTime = performance.now() - startTime;
+    const errorMessage = err.message || err.toString();
+
+    resultElement.textContent = `❌ Error after ${totalTime.toFixed(2)}ms: ${errorMessage}`;
+    resultElement.style.color = "#f87171";
+
+    // Show error details
+    errorDetailsElement.innerHTML = `
+      <h4>Error Details:</h4>
+      <ul>
+        <li><strong>Payload size:</strong> ${generatedText.length.toLocaleString()} characters</li>
+        <li><strong>Estimated URL length:</strong> ${estimatedUrlLength.toLocaleString()} characters</li>
+        <li><strong>Error:</strong> ${errorMessage}</li>
+      </ul>
+    `;
+    errorDetailsElement.style.display = "block";
+
+    console.error("Error:", err);
+    console.error("Payload size:", generatedText.length);
+    console.error("Estimated URL length:", estimatedUrlLength);
+  }
+
+  serviceBtn.disabled = false;
+  serviceBtn.textContent = "Send via Service";
 };
 
-// Initialize UI state
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("service-btn").disabled = true;
-  document.getElementById("small-service-btn").disabled = true;
-});
+// Preset functions
+window.setPreset = (size, unit) => {
+  document.getElementById("size-input").value = size;
+  document.getElementById("unit-select").value = unit;
+};

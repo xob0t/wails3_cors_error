@@ -5,31 +5,39 @@
     <link rel="icon" type="image/svg+xml" href="/wails.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/style.css" />
-    <title>Wails App</title>
+    <title>Wails Service Call Testing</title>
   </head>
   <body>
     <div class="container">
-      <!-- 100KB text testing section -->
       <div class="card">
-        <h2>Small Text Testing (100KB)</h2>
-        <div class="result" id="small-text-result">Click a button below to send 100KB of text</div>
-        <div class="input-box">
-          <button class="btn" onclick="sendSmallTextViaService()" id="small-service-btn">Send via Service</button>
+        <h2>Wails Service Call - CORS Error Demo</h2>
+        <p>Test service calls with custom payload sizes to reproduce CORS errors</p>
+
+        <div class="size-input-container">
+          <label for="size-input">Payload Size:</label>
+          <input type="number" id="size-input" value="100" min="1" step="0.1" />
+          <select id="unit-select">
+            <option value="B">Bytes</option>
+            <option value="KB" selected>KB</option>
+            <option value="MB">MB</option>
+          </select>
         </div>
-        <div class="input-box">
-          <button class="btn" onclick="generateSmallText()" id="generate-small-btn">Generate Text (100KB)</button>
-          <span id="small-text-status">No text generated</span>
+
+        <div class="presets">
+          <button class="preset-btn" onclick="setPreset(10, 'KB')">10 KB</button>
+          <button class="preset-btn" onclick="setPreset(100, 'KB')">100 KB</button>
+          <button class="preset-btn" onclick="setPreset(500, 'KB')">500 KB</button>
+          <button class="preset-btn" onclick="setPreset(1, 'MB')">1 MB</button>
+          <button class="preset-btn" onclick="setPreset(2, 'MB')">2 MB</button>
         </div>
-        <hr />
-        <h2>Large Text Testing (2MB)</h2>
-        <div class="result" id="large-text-result">Click a button below to send 2MB of text</div>
+
+        <div class="result" id="result">Click "Send via Service" to test</div>
+
         <div class="input-box">
-          <button class="btn" onclick="sendLargeTextViaService()" id="service-btn">Send via Service</button>
+          <button class="btn" onclick="sendTextViaService()" id="service-btn">Send via Service</button>
         </div>
-        <div class="input-box">
-          <button class="btn" onclick="generateText()" id="generate-btn">Generate Text (2MB)</button>
-          <span id="text-status">No text generated</span>
-        </div>
+
+        <div class="error-details" id="error-details"></div>
       </div>
     </div>
     <script type="module" src="/main.js"></script>
